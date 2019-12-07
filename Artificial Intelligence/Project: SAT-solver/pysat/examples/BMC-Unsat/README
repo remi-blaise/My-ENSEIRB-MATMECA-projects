@@ -1,0 +1,3 @@
+barrel: barrel shifter
+queueinvar:  invariant checking of the equality of two implementations of queues
+longmult: 16x16 bit shift & add multiplier with overflow bit and only 16 outputs

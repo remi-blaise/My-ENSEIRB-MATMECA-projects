@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python3 genMondeMonstre.py > data.cnf && python3 pysat/src/pysat.py data.cnf

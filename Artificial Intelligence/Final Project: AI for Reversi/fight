@@ -1,0 +1,58 @@
+#!/bin/bash
+
+rm ./results
+
+P1_SCORE=0
+P2_SCORE=0
+EQUALITY=0
+
+for (( i = 0; i < 10; i++ )); do
+    if [[ $((i % 2)) == 1 ]]; then
+        P1=$2
+        P2=$1
+    else
+        P1=$1
+        P2=$2
+    fi
+
+    echo `date +"%T"`
+    echo "$P1 plays BLACK, $P2 plays WHITE" >> ./results
+
+    for (( j = 0; j < 4; j++ )); do
+        (python3 fight.py $P1 $P2 | tail -n 1 >> ./results && echo `date +"%T"` && echo "END") &
+    done
+
+    wait
+    echo `date +"%T"`
+    echo "."
+
+    IFS=$'\n' # make newlines the only separator
+    set -f    # disable globbing
+
+    for line in $(cat ./results | tail -n 4); do
+        A=`echo $line | cut -d " " -f 2`
+        B=`echo $line | cut -d " " -f 3`
+        C=`echo $line | cut -d " " -f 4`
+        D=`echo $line | cut -d " " -f 5`
+        if [ $A -eq $B ]
+        then
+            EQUALITY=$(($EQUALITY + 1))
+        elif [ $A -gt $B ]
+        then
+            if [[ $((i % 2)) == 1 ]]; then
+                P2_SCORE=$(($P2_SCORE + 1))
+            else
+                P1_SCORE=$(($P1_SCORE + 1))
+            fi
+        else
+            if [[ $((i % 2)) == 1 ]]; then
+                P1_SCORE=$(($P1_SCORE + 1))
+            else
+                P2_SCORE=$(($P2_SCORE + 1))
+            fi
+        fi
+    done
+
+    echo "$1 wins $P1_SCORE, $2 wins $P2_SCORE, $EQUALITY equalities" >> ./results
+    echo "==========================================================" >> ./results
+done

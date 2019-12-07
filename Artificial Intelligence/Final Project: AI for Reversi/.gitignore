@@ -1,0 +1,11 @@
+results*
+dist
+build
+__pycache__
+*/__pycache__
+opening_libraries
+!opening_libraries/openings-7-7-v1.data.min
+.svn
+*.c
+*.pyc
+nohup.out

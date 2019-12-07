@@ -1,0 +1,57 @@
+#!/bin/bash
+
+SAMPLES_LENGTH=40
+
+function evaluate {
+    NANOSECONDS_1=`date +"%s.%N" | sed -e "s/\.//"`
+    $1 > /dev/null 2>&1
+    NANOSECONDS_2=`date +"%s.%N" | sed -e "s/\.//"`
+    DURATION=$((NANOSECONDS_2 - NANOSECONDS_1))
+
+    echo -n $DURATION
+}
+
+function evaluate-average {
+    SUM=0
+    for i in $(seq 1 $1)
+    do
+        SUM=$(($SUM + `evaluate "$2"`))
+    done
+    echo -n $(($SUM / $1))
+}
+
+# run {ARG} {SCRIPT_NAME} {DUPLICATE_ARGUMENT} {SAMPLES_LENGTH}
+function run {
+    ARG=""
+    for i in $(seq 1 $3)
+    do
+        ARG="${ARG} $1"
+    done
+
+    echo -n $1,
+
+    evaluate-average $4 "$2$ARG"
+    echo -n ,
+
+    evaluate-average $4 "taskset -c 0 ${2}-pt${ARG}"
+    echo
+}
+
+# run-several {HOW_MANY} {COEFF} {SCRIPT_NAME} {DUPLICATE_ARGUMENT} {SAMPLES_LENGTH}
+function run-several {
+    echo $3
+    for i in $(seq 1 $1)
+    do
+        run $(($i*$2)) build/$3 $4 $5
+    done
+    echo
+}
+
+run-several 20 5 21-create-many 1 $SAMPLES_LENGTH
+run-several 20 5 22-create-many-recursive 1 $SAMPLES_LENGTH
+run-several 20 5 23-create-many-once 1 $SAMPLES_LENGTH
+run-several 20 5 31-switch-many 2 $SAMPLES_LENGTH
+run-several 20 30 32-switch-many-join 2 $SAMPLES_LENGTH
+run-several 10 2 51-fibonacci 1 $SAMPLES_LENGTH
+run-several 10 2 61-mutex 1 $SAMPLES_LENGTH
+run-several 8 2 62-mutex 1 20

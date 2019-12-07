@@ -1,0 +1,4 @@
+*~
+src/a.out
+*.o
+!build/.gitkeep

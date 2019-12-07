@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cp sudoku.cnf data.cnf
+python3 starter-Sudoku.py >> data.cnf
+python3 pysat/src/pysat.py data.cnf
